@@ -3,13 +3,12 @@ import { TreePine, CalendarClock, PiggyBank, TrendingUp, FileText } from 'lucide
 
 interface CardPlantaProps {
   valor: number;
-  prazoObra: number;
   highlighted: boolean;
   qtdParcelas: number;
   setQtdParcelas: (v: number) => void;
 }
 
-const CardPlanta = ({ valor, prazoObra, highlighted, qtdParcelas, setQtdParcelas }: CardPlantaProps) => {
+const CardPlanta = ({ valor, highlighted, qtdParcelas, setQtdParcelas }: CardPlantaProps) => {
   const entradaTotal = valor * 0.2;
   const parcelaMensal = entradaTotal / qtdParcelas;
   const financiado = valor * 0.8;
