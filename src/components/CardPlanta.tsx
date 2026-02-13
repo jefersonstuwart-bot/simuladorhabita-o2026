@@ -1,5 +1,5 @@
 import { formatCurrency } from '@/lib/formatter';
-import { TreePine, CalendarClock, PiggyBank, TrendingUp, FileText, Landmark, BookOpen } from 'lucide-react';
+import { TreePine, CalendarClock, PiggyBank, TrendingUp, FileText } from 'lucide-react';
 
 interface CardPlantaProps {
   valor: number;
@@ -14,20 +14,10 @@ const CardPlanta = ({ valor, prazoObra, highlighted, qtdParcelas, setQtdParcelas
   const parcelaMensal = entradaTotal / qtdParcelas;
   const financiado = valor * 0.8;
   const documentacao = valor * 0.04;
-  const funrejus = 850;
-  const correspondente = 1700;
-  const tacCaixa = 1200;
-  const engenheiroCaixa = 2500;
-  const registro = valor * 0.017;
 
   const items = [
     { icon: PiggyBank, label: 'Entrada total (20%)', value: entradaTotal },
     { icon: FileText, label: 'Documentação (4%)', value: documentacao, note: 'diluída na entrega' },
-    { icon: Landmark, label: 'Funrejus', value: funrejus, note: 'na entrega' },
-    { icon: Landmark, label: 'Correspondente', value: correspondente, note: 'na entrega' },
-    { icon: Landmark, label: 'TAC Caixa', value: tacCaixa, note: 'na entrega' },
-    { icon: Landmark, label: 'Engenheiro Caixa', value: engenheiroCaixa, note: 'na entrega' },
-    { icon: BookOpen, label: 'Registro (1.7%)', value: registro, note: 'na entrega' },
     { icon: TrendingUp, label: 'Valor financiado (80%)', value: financiado },
   ];
 
