@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import logo from '@/assets/logo.png';
 import SimulatorInputs from '@/components/SimulatorInputs';
 import CardPronto, { calcTotalPronto } from '@/components/CardPronto';
 import CardPlanta from '@/components/CardPlanta';
@@ -20,8 +21,9 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="py-8 md:py-12 text-center px-4">
+        <img src={logo} alt="Imobispace Home" className="w-20 h-20 mx-auto mb-4 object-contain" />
         <h1 className="text-3xl md:text-5xl font-black text-foreground tracking-tight leading-tight">
-          Simulador Estratégico
+          Simulador Imobiliário Curitiba
         </h1>
         <p className="text-lg md:text-xl text-muted-foreground mt-3 max-w-2xl mx-auto">
           Descubra qual cenário protege melhor seu dinheiro hoje.
