@@ -1,16 +1,35 @@
 import { formatCurrency } from '@/lib/formatter';
-import { TreePine, CalendarClock, PiggyBank, TrendingUp } from 'lucide-react';
+import { TreePine, CalendarClock, PiggyBank, TrendingUp, FileText, Landmark, BookOpen } from 'lucide-react';
 
 interface CardPlantaProps {
   valor: number;
   prazoObra: number;
   highlighted: boolean;
+  qtdParcelas: number;
+  setQtdParcelas: (v: number) => void;
 }
 
-const CardPlanta = ({ valor, prazoObra, highlighted }: CardPlantaProps) => {
+const CardPlanta = ({ valor, prazoObra, highlighted, qtdParcelas, setQtdParcelas }: CardPlantaProps) => {
   const entradaTotal = valor * 0.2;
-  const parcelaMensal = entradaTotal / prazoObra;
+  const parcelaMensal = entradaTotal / qtdParcelas;
   const financiado = valor * 0.8;
+  const documentacao = valor * 0.04;
+  const funrejus = 850;
+  const correspondente = 1700;
+  const tacCaixa = 1200;
+  const engenheiroCaixa = 2500;
+  const registro = valor * 0.017;
+
+  const items = [
+    { icon: PiggyBank, label: 'Entrada total (20%)', value: entradaTotal },
+    { icon: FileText, label: 'Documentação (4%)', value: documentacao, note: 'diluída na entrega' },
+    { icon: Landmark, label: 'Funrejus', value: funrejus, note: 'na entrega' },
+    { icon: Landmark, label: 'Correspondente', value: correspondente, note: 'na entrega' },
+    { icon: Landmark, label: 'TAC Caixa', value: tacCaixa, note: 'na entrega' },
+    { icon: Landmark, label: 'Engenheiro Caixa', value: engenheiroCaixa, note: 'na entrega' },
+    { icon: BookOpen, label: 'Registro (1.7%)', value: registro, note: 'na entrega' },
+    { icon: TrendingUp, label: 'Valor financiado (80%)', value: financiado },
+  ];
 
   return (
     <div
@@ -25,34 +44,47 @@ const CardPlanta = ({ valor, prazoObra, highlighted }: CardPlantaProps) => {
         <h2 className="text-xl font-bold text-plan-strong">Imóvel na Planta</h2>
       </div>
 
+      {/* Editable parcelas */}
+      <div className="flex items-center gap-3 mb-4 p-3 rounded-lg bg-[hsl(var(--plan-bg))] border border-[hsl(var(--plan-border))]">
+        <CalendarClock className="w-4 h-4 text-[hsl(var(--plan-text))] opacity-60" />
+        <span className="text-sm text-[hsl(var(--plan-text))]">Parcelas da entrada:</span>
+        <input
+          type="number"
+          min={1}
+          max={120}
+          value={qtdParcelas}
+          onChange={(e) => setQtdParcelas(Math.max(1, Number(e.target.value)))}
+          className="w-20 rounded-md border border-[hsl(var(--plan-border))] bg-card px-2 py-1 text-center font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[hsl(var(--plan-accent))]"
+        />
+        <span className="text-sm text-[hsl(var(--plan-text))]">meses</span>
+      </div>
+
       <div className="space-y-3">
-        <div className="flex items-center justify-between py-2 border-b border-[hsl(var(--plan-border))]">
-          <div className="flex items-center gap-2 text-sm text-[hsl(var(--plan-text))]">
-            <PiggyBank className="w-4 h-4 opacity-60" />
-            Entrada total (20%)
+        {items.map((item, i) => (
+          <div key={i} className="flex items-center justify-between py-2 border-b border-[hsl(var(--plan-border))]">
+            <div className="flex items-center gap-2 text-sm text-[hsl(var(--plan-text))]">
+              <item.icon className="w-4 h-4 opacity-60" />
+              <span>{item.label}</span>
+              {item.note && (
+                <span className="text-xs bg-[hsl(var(--plan-border))] text-[hsl(var(--plan-text))] px-1.5 py-0.5 rounded opacity-75">
+                  {item.note}
+                </span>
+              )}
+            </div>
+            <span className="font-semibold text-foreground transition-all duration-300">
+              {formatCurrency(item.value)}
+            </span>
           </div>
-          <span className="font-semibold text-foreground transition-all duration-300">
-            {formatCurrency(entradaTotal)}
-          </span>
-        </div>
+        ))}
 
-        <div className="flex items-center justify-between py-2 border-b border-[hsl(var(--plan-border))]">
-          <div className="flex items-center gap-2 text-sm text-[hsl(var(--plan-text))]">
-            <CalendarClock className="w-4 h-4 opacity-60" />
-            Parcela mensal ({prazoObra}x)
+        {/* Parcela mensal */}
+        <div className="flex items-center justify-between py-2 border-b-2 border-[hsl(var(--plan-accent))]">
+          <div className="flex items-center gap-2 text-sm font-bold text-plan-strong">
+            <CalendarClock className="w-4 h-4" />
+            Parcela mensal ({qtdParcelas}x)
           </div>
-          <span className="font-semibold text-foreground transition-all duration-300">
+          <span className="font-bold text-lg text-plan-strong transition-all duration-300">
             {formatCurrency(parcelaMensal)}
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between py-2 border-b border-[hsl(var(--plan-border))]">
-          <div className="flex items-center gap-2 text-sm text-[hsl(var(--plan-text))]">
-            <TrendingUp className="w-4 h-4 opacity-60" />
-            Valor financiado (80%)
-          </div>
-          <span className="font-semibold text-foreground transition-all duration-300">
-            {formatCurrency(financiado)}
           </span>
         </div>
       </div>
