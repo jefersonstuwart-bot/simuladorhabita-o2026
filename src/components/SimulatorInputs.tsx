@@ -5,14 +5,12 @@ interface SimulatorInputsProps {
   setValor: (v: number) => void;
   tipo: 'novo' | 'usado';
   setTipo: (t: 'novo' | 'usado') => void;
-  prazoObra: number;
-  setPrazoObra: (p: number) => void;
 }
 
-const SimulatorInputs = ({ valor, setValor, tipo, setTipo, prazoObra, setPrazoObra }: SimulatorInputsProps) => {
+const SimulatorInputs = ({ valor, setValor, tipo, setTipo }: SimulatorInputsProps) => {
   return (
     <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <CurrencyInput value={valor} onChange={setValor} label="Valor do Imóvel" />
 
         <div className="flex flex-col gap-1.5">
@@ -42,18 +40,6 @@ const SimulatorInputs = ({ valor, setValor, tipo, setTipo, prazoObra, setPrazoOb
               </label>
             ))}
           </div>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-muted-foreground">Prazo da Obra (meses)</label>
-          <input
-            type="number"
-            min={1}
-            max={120}
-            value={prazoObra}
-            onChange={(e) => setPrazoObra(Math.max(1, Number(e.target.value)))}
-            className="w-full rounded-lg border border-input bg-card px-4 py-3 text-lg font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
-          />
         </div>
       </div>
     </div>

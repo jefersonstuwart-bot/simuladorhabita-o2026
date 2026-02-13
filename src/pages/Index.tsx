@@ -9,7 +9,7 @@ import { ShieldCheck, AlertTriangle } from 'lucide-react';
 const Index = () => {
   const [valor, setValor] = useState(350000);
   const [tipo, setTipo] = useState<'novo' | 'usado'>('novo');
-  const [prazoObra, setPrazoObra] = useState(24);
+  
   const [highlight, setHighlight] = useState<'pronto' | 'planta' | null>(null);
   const [qtdParcelas, setQtdParcelas] = useState(24);
 
@@ -37,14 +37,12 @@ const Index = () => {
           setValor={setValor}
           tipo={tipo}
           setTipo={setTipo}
-          prazoObra={prazoObra}
-          setPrazoObra={setPrazoObra}
         />
 
         {/* Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <CardPronto valor={valor} tipo={tipo} highlighted={highlight === 'pronto'} />
-          <CardPlanta valor={valor} prazoObra={prazoObra} highlighted={highlight === 'planta'} qtdParcelas={qtdParcelas} setQtdParcelas={setQtdParcelas} />
+          <CardPlanta valor={valor} highlighted={highlight === 'planta'} qtdParcelas={qtdParcelas} setQtdParcelas={setQtdParcelas} />
         </div>
 
         {/* Difference Banner */}
