@@ -21,7 +21,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="py-8 md:py-12 text-center px-4">
-        <img src={logo} alt="Imobispace Home" className="w-20 h-20 mx-auto mb-4 object-contain" />
+        <img src={logo} alt="Imobispace Home" className="w-40 h-40 mx-auto mb-4 object-contain" />
         <h1 className="text-3xl md:text-5xl font-black text-foreground tracking-tight leading-tight">
           Simulador Imobiliário Curitiba
         </h1>
