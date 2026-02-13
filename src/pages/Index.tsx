@@ -10,9 +10,10 @@ const Index = () => {
   const [tipo, setTipo] = useState<'novo' | 'usado'>('novo');
   const [prazoObra, setPrazoObra] = useState(24);
   const [highlight, setHighlight] = useState<'pronto' | 'planta' | null>(null);
+  const [qtdParcelas, setQtdParcelas] = useState(24);
 
   const totalPronto = calcTotalPronto(valor, tipo);
-  const parcelaMensal = (valor * 0.2) / prazoObra;
+  const parcelaMensal = (valor * 0.2) / qtdParcelas;
   const diferenca = totalPronto - parcelaMensal;
 
   return (
@@ -41,7 +42,7 @@ const Index = () => {
         {/* Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <CardPronto valor={valor} tipo={tipo} highlighted={highlight === 'pronto'} />
-          <CardPlanta valor={valor} prazoObra={prazoObra} highlighted={highlight === 'planta'} />
+          <CardPlanta valor={valor} prazoObra={prazoObra} highlighted={highlight === 'planta'} qtdParcelas={qtdParcelas} setQtdParcelas={setQtdParcelas} />
         </div>
 
         {/* Difference Banner */}
