@@ -18,7 +18,7 @@ const Index = () => {
 
   const totalPronto = calcTotalPronto(valor, tipo);
   const restanteEntrada = Math.max(0, valor * 0.2 - Math.min(entradaInicial, valor * 0.2));
-  const parcelaMensal = restanteEntrada / qtdParcelas;
+  const parcelaMensal = (restanteEntrada + valor * 0.04) / qtdParcelas;
   const diferenca = totalPronto - parcelaMensal;
 
   return (
