@@ -6,16 +6,22 @@ interface CardPlantaProps {
   highlighted: boolean;
   qtdParcelas: number;
   setQtdParcelas: (v: number) => void;
+  entradaInicial: number;
+  setEntradaInicial: (v: number) => void;
 }
 
-const CardPlanta = ({ valor, highlighted, qtdParcelas, setQtdParcelas }: CardPlantaProps) => {
+const CardPlanta = ({ valor, highlighted, qtdParcelas, setQtdParcelas, entradaInicial, setEntradaInicial }: CardPlantaProps) => {
   const entradaTotal = valor * 0.2;
-  const parcelaMensal = entradaTotal / qtdParcelas;
+  const entradaCapped = Math.min(Math.max(0, entradaInicial), entradaTotal);
+  const restante = Math.max(0, entradaTotal - entradaCapped);
+  const parcelaMensal = restante / qtdParcelas;
   const financiado = valor * 0.8;
   const documentacao = valor * 0.04;
 
   const items = [
     { icon: PiggyBank, label: 'Entrada total (20%)', value: entradaTotal },
+    { icon: PiggyBank, label: 'Entrada inicial do cliente', value: entradaCapped, note: 'abatida do restante' },
+    { icon: PiggyBank, label: 'Restante a parcelar', value: restante },
     { icon: FileText, label: 'Documentação (4%)', value: documentacao, note: 'diluída na entrega' },
     { icon: TrendingUp, label: 'Valor financiado (80%)', value: financiado },
   ];
@@ -31,6 +37,20 @@ const CardPlanta = ({ valor, highlighted, qtdParcelas, setQtdParcelas }: CardPla
           <TreePine className="w-5 h-5 text-primary-foreground" />
         </div>
         <h2 className="text-xl font-bold text-plan-strong">Imóvel na Planta</h2>
+      </div>
+
+      {/* Entrada inicial do cliente */}
+      <div className="flex items-center gap-3 mb-3 p-3 rounded-lg bg-[hsl(var(--plan-bg))] border border-[hsl(var(--plan-border))]">
+        <PiggyBank className="w-4 h-4 text-[hsl(var(--plan-text))] opacity-60" />
+        <span className="text-sm text-[hsl(var(--plan-text))]">Entrada inicial (R$):</span>
+        <input
+          type="number"
+          min={0}
+          value={entradaInicial || ''}
+          onChange={(e) => setEntradaInicial(Math.max(0, Number(e.target.value)))}
+          placeholder="0"
+          className="flex-1 rounded-md border border-[hsl(var(--plan-border))] bg-card px-2 py-1 text-right font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[hsl(var(--plan-accent))]"
+        />
       </div>
 
       {/* Editable parcelas */}
