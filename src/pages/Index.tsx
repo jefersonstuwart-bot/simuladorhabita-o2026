@@ -3,6 +3,7 @@ import logo from '@/assets/logo.png';
 import SimulatorInputs from '@/components/SimulatorInputs';
 import CardPronto, { calcTotalPronto } from '@/components/CardPronto';
 import CardPlanta from '@/components/CardPlanta';
+import CustoEsperar from '@/components/CustoEsperar';
 import { formatCurrency } from '@/lib/formatter';
 import { ShieldCheck, AlertTriangle } from 'lucide-react';
 
@@ -12,9 +13,12 @@ const Index = () => {
   
   const [highlight, setHighlight] = useState<'pronto' | 'planta' | null>(null);
   const [qtdParcelas, setQtdParcelas] = useState(24);
+  const [entradaInicial, setEntradaInicial] = useState(0);
+  const [taxaValorizacao, setTaxaValorizacao] = useState(10);
 
   const totalPronto = calcTotalPronto(valor, tipo);
-  const parcelaMensal = (valor * 0.2) / qtdParcelas;
+  const restanteEntrada = Math.max(0, valor * 0.2 - Math.min(entradaInicial, valor * 0.2));
+  const parcelaMensal = restanteEntrada / qtdParcelas;
   const diferenca = totalPronto - parcelaMensal;
 
   return (
@@ -42,8 +46,18 @@ const Index = () => {
         {/* Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <CardPronto valor={valor} tipo={tipo} highlighted={highlight === 'pronto'} />
-          <CardPlanta valor={valor} highlighted={highlight === 'planta'} qtdParcelas={qtdParcelas} setQtdParcelas={setQtdParcelas} />
+          <CardPlanta
+            valor={valor}
+            highlighted={highlight === 'planta'}
+            qtdParcelas={qtdParcelas}
+            setQtdParcelas={setQtdParcelas}
+            entradaInicial={entradaInicial}
+            setEntradaInicial={setEntradaInicial}
+          />
         </div>
+
+        {/* Custo de Esperar */}
+        <CustoEsperar valor={valor} taxaAnual={taxaValorizacao} setTaxaAnual={setTaxaValorizacao} />
 
         {/* Difference Banner */}
         {valor > 0 && (
