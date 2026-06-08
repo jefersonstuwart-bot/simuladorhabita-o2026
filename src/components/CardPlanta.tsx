@@ -14,15 +14,17 @@ const CardPlanta = ({ valor, highlighted, qtdParcelas, setQtdParcelas, entradaIn
   const entradaTotal = valor * 0.2;
   const entradaCapped = Math.min(Math.max(0, entradaInicial), entradaTotal);
   const restante = Math.max(0, entradaTotal - entradaCapped);
-  const parcelaMensal = restante / qtdParcelas;
   const financiado = valor * 0.8;
   const documentacao = valor * 0.04;
+  const totalParcelar = restante + documentacao;
+  const parcelaMensal = totalParcelar / qtdParcelas;
 
   const items = [
     { icon: PiggyBank, label: 'Entrada total (20%)', value: entradaTotal },
     { icon: PiggyBank, label: 'Entrada inicial do cliente', value: entradaCapped, note: 'abatida do restante' },
     { icon: PiggyBank, label: 'Restante a parcelar', value: restante },
-    { icon: FileText, label: 'Documentação (4%)', value: documentacao, note: 'diluída na entrega' },
+    { icon: FileText, label: 'Documentação (4%)', value: documentacao, note: 'incluída nas parcelas' },
+    { icon: PiggyBank, label: 'Total parcelado (restante + doc.)', value: totalParcelar },
     { icon: TrendingUp, label: 'Valor financiado (80%)', value: financiado },
   ];
 
