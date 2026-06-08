@@ -1,4 +1,4 @@
-import { formatCurrency } from '@/lib/formatter';
+import { formatCurrency, formatCurrencyInput, parseCurrencyInput } from '@/lib/formatter';
 import { TreePine, CalendarClock, PiggyBank, TrendingUp, FileText } from 'lucide-react';
 
 interface CardPlantaProps {
@@ -46,11 +46,11 @@ const CardPlanta = ({ valor, highlighted, qtdParcelas, setQtdParcelas, entradaIn
         <PiggyBank className="w-4 h-4 text-[hsl(var(--plan-text))] opacity-60" />
         <span className="text-sm text-[hsl(var(--plan-text))]">Entrada inicial (R$):</span>
         <input
-          type="number"
-          min={0}
-          value={entradaInicial || ''}
-          onChange={(e) => setEntradaInicial(Math.max(0, Number(e.target.value)))}
-          placeholder="0"
+          type="text"
+          inputMode="numeric"
+          value={formatCurrencyInput(entradaInicial)}
+          onChange={(e) => setEntradaInicial(parseCurrencyInput(e.target.value))}
+          placeholder="0,00"
           className="flex-1 rounded-md border border-[hsl(var(--plan-border))] bg-card px-2 py-1 text-right font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-[hsl(var(--plan-accent))]"
         />
       </div>
