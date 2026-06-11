@@ -1,9 +1,15 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { formatCurrency } from '@/lib/formatter';
-import { AlertTriangle, TrendingUp, TrendingDown, Percent } from 'lucide-react';
 import {
-  LineChart,
-  Line,
+  LineChart as LineChartIcon,
+  TrendingUp,
+  Percent,
+  Home,
+  Calculator,
+  Shield,
+  Sparkles,
+} from 'lucide-react';
+import {
   XAxis,
   YAxis,
   Tooltip,
@@ -27,6 +33,34 @@ function parcelaPrice(principal: number, jurosMensal: number, meses: number) {
   return (principal * jurosMensal * f) / (f - 1);
 }
 
+function useAnimatedNumber(value: number, duration = 600) {
+  const [display, setDisplay] = useState(value);
+  const fromRef = useRef(value);
+  const startRef = useRef<number | null>(null);
+  useEffect(() => {
+    const from = fromRef.current;
+    const to = value;
+    startRef.current = null;
+    let raf = 0;
+    const tick = (t: number) => {
+      if (startRef.current === null) startRef.current = t;
+      const p = Math.min(1, (t - startRef.current) / duration);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setDisplay(from + (to - from) * eased);
+      if (p < 1) raf = requestAnimationFrame(tick);
+      else fromRef.current = to;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+  return display;
+}
+
+const AnimatedCurrency = ({ value, className }: { value: number; className?: string }) => {
+  const v = useAnimatedNumber(value);
+  return <span className={className}>{formatCurrency(v)}</span>;
+};
+
 const CustoEsperar = ({
   valor,
   taxaAnual,
@@ -40,10 +74,10 @@ const CustoEsperar = ({
     const v2 = valor * Math.pow(1 + r, 2);
     const v3 = valor * Math.pow(1 + r, 3);
     return [
-      { label: 'Hoje', valor: valor, anos: 0 },
-      { label: '+1 ano', valor: v1, anos: 1 },
-      { label: '+2 anos', valor: v2, anos: 2 },
-      { label: '+3 anos', valor: v3, anos: 3 },
+      { label: 'Hoje', valor: valor, anos: 0, diff: 0 },
+      { label: '+1 Ano', valor: v1, anos: 1, diff: v1 - valor },
+      { label: '+2 Anos', valor: v2, anos: 2, diff: v2 - valor },
+      { label: '+3 Anos', valor: v3, anos: 3, diff: v3 - valor },
     ];
   }, [valor, taxaAnual]);
 
@@ -56,21 +90,25 @@ const CustoEsperar = ({
   const diffParcela = parcela3 - parcelaHoje;
 
   return (
-    <section className="bg-card rounded-2xl border-2 border-[hsl(var(--ready-border))] p-6 md:p-8 shadow-lg">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-ready-accent flex items-center justify-center">
-            <AlertTriangle className="w-6 h-6 text-primary-foreground" />
+    <section className="bg-card rounded-2xl border border-border p-6 md:p-10 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-xl bg-plan-bg border border-[hsl(var(--plan-border))] flex items-center justify-center shrink-0">
+            <LineChartIcon className="w-6 h-6 text-plan-strong" />
           </div>
           <div>
-            <h2 className="text-2xl md:text-3xl font-black text-ready-strong">Custo de Esperar</h2>
-            <p className="text-sm text-muted-foreground">Quanto você perde ao adiar a compra</p>
+            <h2 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">
+              Comprar Hoje <span className="text-muted-foreground font-light">x</span> Comprar Depois
+            </h2>
+            <p className="text-sm md:text-base text-muted-foreground mt-1 max-w-2xl">
+              Veja como a valorização do imóvel pode impactar o valor da compra e do financiamento ao longo do tempo.
+            </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 p-2 rounded-lg border border-border bg-background">
+        <div className="flex items-center gap-2 p-2 rounded-lg border border-border bg-background shrink-0">
           <Percent className="w-4 h-4 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">Valorização a.a.:</span>
+          <span className="text-xs text-muted-foreground">Valorização a.a.</span>
           <input
             type="number"
             min={0}
@@ -84,42 +122,48 @@ const CustoEsperar = ({
         </div>
       </div>
 
-      {/* Tabela */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      {/* Cards de valorização */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2">
         {dados.map((d, i) => (
           <div
             key={d.label}
             className={`rounded-xl border p-4 text-center transition-all ${
               i === 0
-                ? 'bg-[hsl(var(--plan-bg))] border-[hsl(var(--plan-border))]'
-                : 'bg-[hsl(var(--ready-bg))] border-[hsl(var(--ready-border))]'
+                ? 'bg-background border-border'
+                : 'bg-plan-bg border-[hsl(var(--plan-border))]'
             }`}
           >
             <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{d.label}</p>
-            <p
-              className={`text-lg md:text-xl font-black ${
-                i === 0 ? 'text-plan-strong' : 'text-ready-strong'
+            <AnimatedCurrency
+              value={d.valor}
+              className={`block text-lg md:text-xl font-black ${
+                i === 0 ? 'text-foreground' : 'text-plan-strong'
               }`}
-            >
-              {formatCurrency(d.valor)}
-            </p>
+            />
             {i > 0 && (
-              <p className="text-xs text-[hsl(var(--ready-text))] mt-1">
-                +{formatCurrency(d.valor - valor)}
+              <p className="text-xs text-plan-strong/80 mt-1 font-medium">
+                +<AnimatedCurrency value={d.diff} />
               </p>
             )}
           </div>
         ))}
       </div>
+      <p className="text-xs text-muted-foreground text-center mb-8 italic">
+        Simulação baseada em valorização anual estimada.
+      </p>
 
       {/* Gráfico */}
-      <div className="h-64 mb-6 -mx-2">
+      <div className="mb-8">
+        <p className="text-sm font-semibold text-foreground mb-3">
+          Evolução estimada do valor do imóvel
+        </p>
+        <div className="h-64 -mx-2">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={dados} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorValor" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--ready-accent))" stopOpacity={0.5} />
-                <stop offset="95%" stopColor="hsl(var(--ready-accent))" stopOpacity={0} />
+                <stop offset="5%" stopColor="hsl(var(--plan-accent))" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="hsl(var(--plan-accent))" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -130,70 +174,113 @@ const CustoEsperar = ({
               tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
             />
             <Tooltip
-              formatter={(v: number) => formatCurrency(v)}
+              cursor={{ stroke: 'hsl(var(--plan-accent))', strokeOpacity: 0.2 }}
               contentStyle={{
                 background: 'hsl(var(--card))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: 8,
+                fontSize: 12,
+              }}
+              content={({ active, payload, label }) => {
+                if (!active || !payload?.length) return null;
+                const d = payload[0].payload as { valor: number; diff: number };
+                return (
+                  <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-md text-xs">
+                    <p className="font-semibold text-foreground mb-1">{label}</p>
+                    <p className="text-muted-foreground">
+                      Valor: <span className="font-bold text-foreground">{formatCurrency(d.valor)}</span>
+                    </p>
+                    <p className="text-muted-foreground">
+                      Diferença: <span className="font-bold text-plan-strong">+{formatCurrency(d.diff)}</span>
+                    </p>
+                  </div>
+                );
               }}
             />
             <Area
               type="monotone"
               dataKey="valor"
-              stroke="hsl(var(--ready-accent))"
+              stroke="hsl(var(--plan-accent))"
               strokeWidth={3}
               fill="url(#colorValor)"
             />
           </AreaChart>
         </ResponsiveContainer>
+        </div>
       </div>
 
       {/* Comparativo de parcelas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className="rounded-xl border-2 border-[hsl(var(--plan-border))] bg-[hsl(var(--plan-bg))] p-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+        <div className="rounded-xl border border-border bg-background p-5">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingDown className="w-4 h-4 text-plan-strong" />
-            <span className="text-sm font-semibold text-plan-strong">Parcela comprando HOJE</span>
+            <Calculator className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm font-semibold text-foreground">Simulação de compra hoje</span>
           </div>
-          <p className="text-2xl md:text-3xl font-black text-plan-strong">
-            {formatCurrency(parcelaHoje)}<span className="text-sm font-medium">/mês</span>
+          <p className="text-2xl md:text-3xl font-black text-foreground">
+            <AnimatedCurrency value={parcelaHoje} /><span className="text-sm font-medium text-muted-foreground">/mês</span>
           </p>
           <p className="text-xs text-muted-foreground mt-1">
             Financ. 80% • {prazoFinanciamentoMeses}m • {jurosAnual}% a.a.
           </p>
         </div>
-        <div className="rounded-xl border-2 border-[hsl(var(--ready-border))] bg-[hsl(var(--ready-bg))] p-5">
+        <div className="rounded-xl border border-[hsl(var(--plan-border))] bg-plan-bg p-5">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-4 h-4 text-ready-strong" />
-            <span className="text-sm font-semibold text-ready-strong">Parcela em 3 ANOS</span>
+            <TrendingUp className="w-4 h-4 text-plan-strong" />
+            <span className="text-sm font-semibold text-plan-strong">Simulação após 3 anos de valorização</span>
           </div>
-          <p className="text-2xl md:text-3xl font-black text-ready-strong">
-            {formatCurrency(parcela3)}<span className="text-sm font-medium">/mês</span>
+          <p className="text-2xl md:text-3xl font-black text-plan-strong">
+            <AnimatedCurrency value={parcela3} /><span className="text-sm font-medium">/mês</span>
           </p>
-          <p className="text-xs text-[hsl(var(--ready-text))] mt-1">
-            +{formatCurrency(diffParcela)}/mês a mais
+          <p className="text-xs text-plan-strong/80 mt-1">
+            +<AnimatedCurrency value={diffParcela} />/mês na parcela estimada
           </p>
         </div>
       </div>
+      <p className="text-xs text-muted-foreground text-center mb-8 italic">
+        Valores ilustrativos considerando as mesmas condições de financiamento.
+      </p>
 
-      {/* Card destaque */}
-      <div className="rounded-2xl bg-gradient-to-br from-[hsl(var(--ready-accent))] to-[hsl(var(--ready-accent-strong))] p-6 md:p-8 text-center shadow-xl">
-        <p className="text-sm font-bold uppercase tracking-widest text-primary-foreground/90 mb-2">
-          🚨 Custo de Esperar
+      {/* Bloco destaque - Impacto da Valorização */}
+      <div className="rounded-2xl border border-[hsl(var(--plan-border))] bg-gradient-to-br from-plan-bg to-background p-6 md:p-10 text-center shadow-sm">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card border border-border mb-4">
+          <TrendingUp className="w-4 h-4 text-plan-strong" />
+          <span className="text-xs font-semibold uppercase tracking-widest text-foreground">
+            Impacto da Valorização
+          </span>
+        </div>
+        <p className="text-4xl md:text-6xl font-black text-plan-strong leading-tight tracking-tight">
+          <AnimatedCurrency value={ganho} />
         </p>
-        <p className="text-3xl md:text-5xl font-black text-primary-foreground leading-tight">
-          {formatCurrency(ganho)}
+        <p className="text-sm md:text-base text-muted-foreground mt-3 max-w-md mx-auto">
+          Diferença estimada entre comprar hoje e comprar após o período selecionado.
         </p>
-        <p className="text-sm md:text-base text-primary-foreground/90 mt-1">
-          de valorização perdida em 3 anos
+      </div>
+
+      {/* Bloco educativo */}
+      <div className="mt-8 rounded-2xl border border-border bg-background p-6 md:p-8">
+        <h3 className="text-lg md:text-xl font-black text-foreground mb-2">
+          Por que muitas famílias antecipam a compra?
+        </h3>
+        <p className="text-sm md:text-base text-muted-foreground mb-6 max-w-3xl">
+          A valorização do imóvel pode aumentar o valor financiado no futuro. Além disso, condições de mercado, subsídios e disponibilidade das unidades podem mudar ao longo do tempo.
         </p>
-        <div className="h-px bg-primary-foreground/20 my-4 mx-auto max-w-xs" />
-        <p className="text-2xl md:text-3xl font-black text-primary-foreground">
-          +{formatCurrency(diffParcela)}<span className="text-base font-medium">/mês</span>
-        </p>
-        <p className="text-sm text-primary-foreground/90 mt-1">
-          de aumento estimado na parcela
-        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { icon: Home, title: 'Valorização do imóvel', text: 'O preço por m² tende a acompanhar a evolução do mercado.' },
+            { icon: Shield, title: 'Condições de financiamento', text: 'Taxas, subsídios e regras podem mudar entre ciclos econômicos.' },
+            { icon: Sparkles, title: 'Disponibilidade', text: 'Unidades em localizações estratégicas costumam ser limitadas.' },
+          ].map(({ icon: Icon, title, text }) => (
+            <div key={title} className="flex gap-3 p-4 rounded-xl bg-card border border-border">
+              <div className="w-9 h-9 rounded-lg bg-plan-bg border border-[hsl(var(--plan-border))] flex items-center justify-center shrink-0">
+                <Icon className="w-4 h-4 text-plan-strong" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-foreground">{title}</p>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
