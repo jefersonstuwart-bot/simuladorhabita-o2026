@@ -101,12 +101,18 @@ const CardPlanta = ({ valor, highlighted, qtdParcelas, setQtdParcelas, entradaIn
       </div>
 
       <div className="mt-8 text-center">
-        <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Você entra com</p>
+        <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Capital necessário hoje</p>
         <p className="text-3xl md:text-4xl font-black text-plan-strong transition-all duration-300">
-          {formatCurrency(parcelaMensal)}<span className="text-lg font-medium">/mês</span>
+          {formatCurrency(entradaCapped)}
+        </p>
+        <p className="mt-2 text-xs text-[hsl(var(--plan-text))] opacity-80">
+          Sinal negociável conforme perfil e condições comerciais.
+        </p>
+        <p className="mt-1 text-xs text-[hsl(var(--plan-text))] opacity-70">
+          + {formatCurrency(parcelaMensal)}/mês durante {qtdParcelas} meses
         </p>
         <p className="mt-3 text-sm italic text-[hsl(var(--plan-text))] opacity-80">
-          Você preserva seu dinheiro e se organiza com planejamento.
+          Parte da entrada pode ser distribuída durante a obra, reduzindo o desembolso inicial.
         </p>
       </div>
     </div>

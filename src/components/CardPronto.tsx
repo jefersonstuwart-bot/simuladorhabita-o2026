@@ -61,12 +61,15 @@ const CardPronto = ({ valor, tipo, highlighted }: CardProntoProps) => {
       </div>
 
       <div className="mt-8 text-center">
-        <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Você precisa ter hoje</p>
+        <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">Capital necessário imediatamente</p>
         <p className="text-3xl md:text-4xl font-black text-ready-strong transition-all duration-300">
           {formatCurrency(total)}
         </p>
+        <p className="mt-2 text-xs text-[hsl(var(--ready-text))] opacity-80">
+          Entrada, documentação e demais custos exigidos na aquisição do imóvel pronto.
+        </p>
         <p className="mt-3 text-sm italic text-[hsl(var(--ready-text))] opacity-80">
-          Alto impacto imediato no seu caixa.
+          Grande parte do investimento é exigida no momento da compra.
         </p>
       </div>
     </div>
