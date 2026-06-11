@@ -5,7 +5,8 @@ import CardPronto, { calcTotalPronto } from '@/components/CardPronto';
 import CardPlanta from '@/components/CardPlanta';
 import CustoEsperar from '@/components/CustoEsperar';
 import { formatCurrency } from '@/lib/formatter';
-import { ShieldCheck, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, AlertTriangle, Info, Wallet } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const Index = () => {
   const [valor, setValor] = useState(350000);
@@ -17,9 +18,11 @@ const Index = () => {
   const [taxaValorizacao, setTaxaValorizacao] = useState(10);
 
   const totalPronto = calcTotalPronto(valor, tipo);
-  const restanteEntrada = Math.max(0, valor * 0.2 - Math.min(entradaInicial, valor * 0.2));
+  const entradaTotalPlanta = valor * 0.2;
+  const entradaCappedPlanta = Math.min(Math.max(0, entradaInicial), entradaTotalPlanta);
+  const restanteEntrada = Math.max(0, entradaTotalPlanta - entradaCappedPlanta);
   const parcelaMensal = (restanteEntrada + valor * 0.04) / qtdParcelas;
-  const diferenca = totalPronto - parcelaMensal;
+  const capitalPreservado = Math.max(0, totalPronto - entradaCappedPlanta);
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,25 +59,58 @@ const Index = () => {
           />
         </div>
 
-        {/* Custo de Esperar */}
-        <CustoEsperar valor={valor} taxaAnual={taxaValorizacao} setTaxaAnual={setTaxaValorizacao} />
-
-        {/* Difference Banner */}
+        {/* Comparativo de Capital Inicial */}
         {valor > 0 && (
-          <div className="bg-card rounded-2xl border border-border p-6 text-center shadow-sm">
-            <div className="flex items-center justify-center gap-2 text-muted-foreground mb-2">
-              <ShieldCheck className="w-5 h-5" />
-              <span className="text-sm font-medium uppercase tracking-wider">Comparativo</span>
+          <section className="rounded-2xl border-2 border-[hsl(var(--plan-border))] bg-gradient-to-br from-plan-bg to-card p-6 md:p-10 text-center shadow-sm">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Wallet className="w-5 h-5 text-plan-strong" />
+              <h2 className="text-base md:text-lg font-bold uppercase tracking-widest text-foreground">
+                Comparativo de Capital Inicial
+              </h2>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label="Mais informações"
+                    className="inline-flex items-center justify-center w-6 h-6 rounded-full text-muted-foreground hover:text-foreground hover:bg-background transition-colors"
+                  >
+                    <Info className="w-4 h-4" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="text-sm leading-relaxed max-w-xs">
+                  Este valor representa a diferença entre o capital exigido imediatamente no imóvel pronto e o valor necessário para iniciar a compra na planta.
+                </PopoverContent>
+              </Popover>
             </div>
-            <p className="text-lg md:text-xl text-foreground">
-              Na planta você evita descapitalizar aproximadamente{' '}
-              <span className="font-black text-plan-strong text-2xl md:text-3xl">
-                {formatCurrency(diferenca)}
-              </span>{' '}
-              agora.
+            <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+              Capital preservado neste momento
             </p>
-          </div>
+            <p className="text-4xl md:text-6xl font-black text-plan-strong leading-tight tracking-tight">
+              {formatCurrency(capitalPreservado)}
+            </p>
+            <p className="text-sm md:text-base text-muted-foreground mt-3 max-w-xl mx-auto">
+              Valor que permanece disponível no seu caixa ao optar pela compra na planta.
+            </p>
+            <div className="grid grid-cols-2 gap-4 mt-6 max-w-md mx-auto">
+              <div className="rounded-lg bg-card border border-border p-3">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Pronto hoje</p>
+                <p className="text-base font-bold text-ready-strong">{formatCurrency(totalPronto)}</p>
+              </div>
+              <div className="rounded-lg bg-card border border-border p-3">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Planta hoje</p>
+                <p className="text-base font-bold text-plan-strong">{formatCurrency(entradaCappedPlanta)}</p>
+              </div>
+            </div>
+          </section>
         )}
+
+        {/* Seção secundária: Valorização */}
+        <div className="pt-4">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground text-center mb-3">
+            Análise complementar
+          </p>
+          <CustoEsperar valor={valor} taxaAnual={taxaValorizacao} setTaxaAnual={setTaxaValorizacao} />
+        </div>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
